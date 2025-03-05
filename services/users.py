@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from jose import jwt
 import os
 from dotenv import load_dotenv
-
+import json
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -42,6 +42,18 @@ class UserService:
         access_token = create_access_token({"sub":decoded_token["sub"] }, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
         return {"access_token": access_token}
     
+    def meta_data_updater(self,email:str):
+        """_summary_
+        to update meta data
+        Args:
+            email (str) of user
+        """
+        user = self.session.query(Users).filter(Users.email == email).first()
+        if user.metadata_info is None:
+            user.metadata_info = {} 
+        user.metadata_info["visit"] = user.metadata_info.get("visit", 0) + 1 
+        self.session.commit()
+  
     def login_user(self,user_data: UserLogin):  
         """
         Authenticates a user and generates access and refresh tokens.
@@ -55,6 +67,7 @@ class UserService:
         user = self.authenticate_user(user_data.email,user_data.password)
         if not user: 
             raise HTTPException(status_code=401, detail="Invalid Credentials")
+        self.meta_data_updater(user_data.email)
         access_token = create_access_token({"sub": user_data.email}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
         refresh_token = create_refresh_token({"sub": user_data.email},timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
         return {"access_token": access_token, "refresh_token": refresh_token}

@@ -2,7 +2,7 @@ from fastapi import Depends,HTTPException
 from models import Book,Author,Users
 from sqlalchemy.orm import Session
 from schemas.author_schemas import AuthorCreate
-from schemas.book_schemas import BookCreate
+from schemas.book_schemas import BookCreate,BookPublish
 from schemas.user_schema import UserCreate
 
 class UpdateService:
@@ -12,6 +12,25 @@ class UpdateService:
         Constructor for UpdateService
         """
         self.session = session 
+        
+        
+    def publish_book(self,book : BookPublish):
+        """_summary_
+        To set is_published paramter as True
+        Args:
+            book (BookPublish)
+        Raises:
+            HTTPException: raises when book not found
+        Returns:
+            msg as published
+        """
+        result = self.session.query(Book).filter(Book.title == book.title).first()
+        if not result:
+            raise HTTPException(status_code=404, detail= "Book not found")
+        result.is_published=True
+        self.session.commit()
+        return {"message":"published"}
+    
           
     def update_book(self,book_id: int, book: BookCreate,user: dict):
         """
@@ -80,3 +99,5 @@ class UpdateService:
         
         self.session.commit()
         return results
+
+    
