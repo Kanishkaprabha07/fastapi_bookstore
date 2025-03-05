@@ -35,7 +35,11 @@ class RetrieveService():
         Returns:
             list of user schema.
         """
+        
         results= self.session.query(Users).all()
+        for  user in results:
+            if user.metadata_info is None:
+                user.metadata_info = {} 
         return results
     
     def get_author(self):
@@ -69,7 +73,7 @@ class RetrieveService():
         result = self.session.query(Book).options(joinedload(Book.author)).filter(Book.id == book_id).first()    
         return result
     
-    
+
     def get_filtered_books(self, book: BookFilter = FilterDepends(BookFilter)):
         """_summary_
         To display books by appying filter based on query

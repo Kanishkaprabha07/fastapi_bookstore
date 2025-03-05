@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,Dict,Any
 
 class UserLogin(BaseModel):
     """
@@ -27,6 +27,7 @@ class UserResponse(BaseModel):
     email : str
     avatar : str
     phone_number : str
+    metadata_info : Dict[str, Any]
     class Config:
         from_attributes = True
         

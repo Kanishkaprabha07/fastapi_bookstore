@@ -6,7 +6,7 @@ from services.delete import DeleteService
 from services.users import UserService
 from otp_auth.handler import OTPAuthentication
 from schemas.author_schemas import AuthorCreate,AuthorSchema
-from schemas.book_schemas import BookSchema,BookCreate,BookFilter
+from schemas.book_schemas import BookSchema,BookCreate,BookPublish
 from schemas.user_schema import UserLogin,UserResponse,UserCreate,Refresh
 from otp_auth.schema import Verifier,OTPGenerator
 from typing import List
@@ -15,9 +15,15 @@ from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPBearer
 from auth import get_current_user
-
+from services.files import FileService
+from tests.test_author import app
 security = HTTPBearer()
-app=FastAPI()
+#app=FastAPI()
+
+@app.patch("/published",tags=["Books"])
+def publish_book(payload: BookPublish,db : Session= Depends(get_db)):
+    results = UpdateService(db)
+    return results.publish_book(payload)
 
 @app.post("/generateotp",tags =["Login"])
 def generate_otp(payload:OTPGenerator,db : Session= Depends(get_db)):
@@ -200,7 +206,7 @@ def upload_file(file:UploadFile = File(),db:Session = Depends(get_db),user: dict
     Returns:
         _type_: dict
     """
-    service = CreateService(db)
+    service = FileService(db)
     return service.upload_file(file,user)
 
 @app.post("/filestream",tags =["Files"])
