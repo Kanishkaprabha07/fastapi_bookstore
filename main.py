@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPBearer
 from auth import get_current_user
+from services.files import FileService
 
 security = HTTPBearer()
 app=FastAPI()
@@ -200,7 +201,7 @@ def upload_file(file:UploadFile = File(),db:Session = Depends(get_db),user: dict
     Returns:
         _type_: dict
     """
-    service = CreateService(db)
+    service = FileService(db)
     return service.upload_file(file,user)
 
 @app.post("/filestream",tags =["Files"])
