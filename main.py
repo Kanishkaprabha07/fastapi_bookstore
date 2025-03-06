@@ -22,9 +22,9 @@ security = HTTPBearer()
 #app=FastAPI()
 
 @app.patch("/published",tags=["Books"])
-def publish_book(payload: BookPublish,db : Session= Depends(get_db)):
+def publish_book(book_id : int,db : Session= Depends(get_db),user: dict = Depends(get_current_user)):
     results = UpdateService(db)
-    return results.publish_book(payload)
+    return results.publish_book(book_id,user)
 
 @app.post("/generateotp",tags =["Login"])
 def generate_otp(payload:OTPGenerator,db : Session= Depends(get_db)):
