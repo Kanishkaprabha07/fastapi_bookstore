@@ -14,7 +14,7 @@ class UpdateService:
         self.session = session 
         
         
-    def publish_book(self,book : BookPublish):
+    def publish_book(self,book_id : int , user :dict):
         """_summary_
         To set is_published paramter as True
         Args:
@@ -24,10 +24,12 @@ class UpdateService:
         Returns:
             msg as published
         """
-        books = self.session.query(Book).filter(Book.title == book.title).first()
+        #print(user)
+        books = self.session.query(Book).filter(book_id == Book.id).first()
+        
         if not books:
             raise HTTPException(status_code=404, detail= "Book not found")
-        author = self.session.query(Author).filter(Author.user_id==book.user_id).first()
+        author = self.session.query(Author).filter(Author.user_id==user.user_id).first()
         if not author:
             raise HTTPException(status_code=403, detail="The user is not a author")
         if books.author_id != author.author_id:
@@ -35,9 +37,7 @@ class UpdateService:
 
         books.is_published=True
         self.session.commit()
-        return {"message":"published"}   
-        
-    
+        return {"message":"published"}    
           
     def update_book(self,book_id: int, book: BookCreate,user: dict):
         """

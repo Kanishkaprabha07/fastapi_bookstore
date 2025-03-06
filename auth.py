@@ -1,15 +1,18 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import HTTPException,Security
+from fastapi import HTTPException,Security,Depends
 from jose import jwt
 from dotenv import load_dotenv
 import os
+from models import Users
+from db import get_db 
+from sqlalchemy.orm import Session
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 security = HTTPBearer()
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
+def get_current_user(db : Session= Depends(get_db),credentials: HTTPAuthorizationCredentials = Security(security)):
     """_summary_
     Retrieves the current authenticated user from the provided JWT token.
     Args:
@@ -24,7 +27,10 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
     if payload is None:
         print("payload is empty")
         raise HTTPException(status_code=403,detail="User Invalid.")
-    print (payload)
+    email = payload.get("sub") 
+    user = db.query(Users).filter(Users.email == email).first()
+    
+    return user
 
 def verify_jwt_token(token: str):
     """_summary_
