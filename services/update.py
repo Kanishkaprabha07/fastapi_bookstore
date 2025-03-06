@@ -1,6 +1,6 @@
 from fastapi import Depends,HTTPException
 from models import Book,Author,Users
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 from schemas.author_schemas import AuthorCreate
 from schemas.book_schemas import BookCreate,BookPublish
 from schemas.user_schema import UserCreate
@@ -24,12 +24,19 @@ class UpdateService:
         Returns:
             msg as published
         """
-        result = self.session.query(Book).filter(Book.title == book.title).first()
-        if not result:
+        books = self.session.query(Book).filter(Book.title == book.title).first()
+        if not books:
             raise HTTPException(status_code=404, detail= "Book not found")
-        result.is_published=True
+        author = self.session.query(Author).filter(Author.user_id==book.user_id).first()
+        if not author:
+            raise HTTPException(status_code=403, detail="The user is not a author")
+        if books.author_id != author.author_id:
+            raise HTTPException(status_code=403, detail="User is not the author of the given book")
+
+        books.is_published=True
         self.session.commit()
-        return {"message":"published"}
+        return {"message":"published"}   
+        
     
           
     def update_book(self,book_id: int, book: BookCreate,user: dict):

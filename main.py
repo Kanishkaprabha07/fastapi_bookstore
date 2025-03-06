@@ -17,6 +17,7 @@ from fastapi.security import HTTPBearer
 from auth import get_current_user
 from services.files import FileService
 from tests.test_author import app
+from schemas.book_schemas import BookFilter
 security = HTTPBearer()
 #app=FastAPI()
 
