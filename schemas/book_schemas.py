@@ -1,9 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,Json
 from typing import Optional
 from fastapi_filter.contrib.sqlalchemy import Filter
 from models import Book
 from datetime import datetime
 from schemas.author_schemas import AuthorSchema
+
 
 class BookFilter(Filter):
     """
@@ -38,7 +39,10 @@ class BookCreate(BaseModel):
     edition: int
     author_id: int
     published_at :datetime
+    meta_data : Json
     class Config:
         from_attributes=True
 
-
+class BookPublish(BaseModel):
+    title : str
+    user_id :str

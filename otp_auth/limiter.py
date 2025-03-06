@@ -13,7 +13,7 @@ def rate_limiter(phone_number: str):
     """
     now = time.time()
     window = 60 
-    limit = 2 
+    limit = 1
     if phone_number not in rate_limits:
         rate_limits[phone_number] = []
     previous_requests = rate_limits[phone_number]
@@ -28,4 +28,5 @@ def rate_limiter(phone_number: str):
     rate_limits[phone_number].append(now)
     
     
+
     

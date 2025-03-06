@@ -1,9 +1,11 @@
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime,ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime,ForeignKey,Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 #from sqlalchemy_json import mutable_json_type
+from sqlalchemy.ext.mutable import MutableDict
+
 Base = declarative_base()
 class Author(Base):
     """
@@ -30,6 +32,7 @@ class Book(Base):
     edition = Column(Integer)
     #year = Column(Integer)
     published_at = Column(DateTime)
+    is_published =Column (Boolean, default=False)
     author=relationship("Author", back_populates="books")
 
 class Users(Base):
@@ -43,7 +46,6 @@ class Users(Base):
     email = Column(String, index = True)
     avatar = Column(String)
     phone_number = Column(String)
-    #meta_data = Column(mutable_json_type(dbtype=JSONB, nested=True))
-    metadata_info = Column(JSONB)
-    authors =relationship("Author",back_populates="user")
 
+    metadata_info =Column(MutableDict.as_mutable(JSONB),nullable =False,server_default="{}")
+    authors =relationship("Author",back_populates="user")
